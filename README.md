@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Back-end
 
 ### Base URL - tbd
@@ -369,5 +370,7 @@ axios.delete('https://baseURL/api/classes/:10')
 
 
 
+=======
+>>>>>>> 6a00517918c5e36078ae7e54bc54b0938a84e12d
 
 
