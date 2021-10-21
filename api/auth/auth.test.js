@@ -17,16 +17,16 @@ describe("[POST] /register", () => {
   it("registers a new user and returns it", async () => {
     const newUser = await request(server)
       .post("/api/auth/register")
-      .send({ user_name: "test2", password: "1234" });
+      .send({ email: "test2@gmail.com", name: 'drew', password: "1234", role: "client" });
     //console.log("here", newUser.body)
-    expect(newUser.body.user.user_name).toEqual("test2");
+    expect(newUser.body.user.email).toEqual("test2@gmail.com");
   });
   it("returns error when username is blank", async () => {
     const response = await request(server)
       .post("/api/auth/register")
       .send({ password: "1234" });
     expect(response.body).toEqual({
-      message: "username and password required",
+      message: "email, name, password, and role required",
     });
   });
 });
@@ -35,18 +35,18 @@ describe("[POST] /login", () => {
   it("logins with proper credentials", async () => {
     await request(server)
       .post("/api/auth/register")
-      .send({ user_name: "test2", password: "1234" });
+      .send({ email: "test2@gmail.com", name: "drew", password: "1234", role: "client" });
 
     const user = await request(server)
       .post("/api/auth/login")
-      .send({ user_name: "test2", password: "1234" });
+      .send({ email: "test2@gmail.com", password: "1234" });
     //console.log("auth user body", user.body);
     expect(user.body.message).toEqual("Welcome back.");
   });
   it("returns error when user doesnt exist", async () => {
     const response = await request(server)
       .post("/api/auth/login")
-      .send({ user_name: "test2", password: "1234" });
+      .send({ email: "test2@gmail.com", password: "1234" });
 
     expect(response.body.message).toEqual("Invalid Credentials");
   });
