@@ -1,69 +1,55 @@
 const router = require("express").Router();
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const { jwtSecret } = require("../config/secrets");
-
+const { checkUserExists, checkUser } = require("./authmiddleware");
+const { JWT_SECRET } = require("../config/secrets"); // use this secret!
 const Users = require("../users/usersmodel");
+const jwt = require("jsonwebtoken");
 
-// /api/auth
-router.post("/register", validateUser, (req, res) => {
-  let user = req.body;
-  const hash = bcrypt.hashSync(user.password, 10); // 2 ^ n
-  user.password = hash;
 
-  Users.add(user)
-    .then(saved => {
-      res.status(201).json({
-        saved,
-      });
-    })
-    .catch(error => {
-      res.status(500).json(error);
-    });
-});
+router.post("/register", checkUser, (req, res, next) => {
+	let user = req.body;
+	//console.log('register req.body',req.body);
+	const rounds = process.env.BCRYPT_ROUNDS || 8;
+	const hash = bcrypt.hashSync(user.password, rounds);
+	// added token to the return from register
+	user.password = hash;
+	Users.add(user)
+	  .then((newUser) => {
+		const token = makeToken(newUser)
+		res.status(201).json({user:newUser, token});
+	  })
+	  .catch(next);
+  });
 
-router.post("/login", validateUser, (req, res) => {
-  let { username, password } = req.body;
+router.post("/login", checkUserExists, (req, res, next) => {
+  let { email, password } = req.body;
 
-  Users.findBy({ username })
-    .first()
-    .then(user => {
+  Users.findBy({ email }) // it would be nice to have middleware do this
+    .then(([user]) => {
+      //console.log("login user", user);
       if (user && bcrypt.compareSync(password, user.password)) {
-        const token = generateToken(user);
-
+        const token = makeToken(user);
         res.status(200).json({
-          message: `Welcome ${user.username}!`,
-          token, 
+          id: user.id,
+          email: user.email,
+          token,
+          message: "Welcome back."
         });
       } else {
         res.status(401).json({ message: "Invalid Credentials" });
       }
     })
-    .catch(error => {
-      res.status(500).json(error);
-    });
+    .catch(next);
 });
 
-function generateToken(user) {
+function makeToken(user) {
   const payload = {
-    subject: user.id, 
-    username: user.username,
-    isInstructor: user.isInstructor,
+    subject: user.id,
+    email: user.email,
   };
   const options = {
-    expiresIn: "7d",
+    expiresIn: "24h",
   };
-  return jwt.sign(payload, jwtSecret, options);
+  return jwt.sign(payload, JWT_SECRET, options);
 }
-
-function validateUser(req, res, next) {
-  if (!req.body.username || !req.body.password) {
-    res
-      .status(400)
-      .json({ message: "Username & password fields are required." });
-  } else {
-    next();
-  }
-}
-
 module.exports = router;
