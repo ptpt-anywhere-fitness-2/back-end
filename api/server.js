@@ -1,12 +1,22 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
+const express = require('express')
+const helmet = require('helmet')
+const cors = require('cors')
 
-const server = express();
+const authRouter = require('./auth/authrouter')
+const usersRouter = require('./users/usersrouter')
+// const classesRouter = require('./classes/classes-router')
 
-server.use(helmet());
-server.use(cors());
-server.use(express.json());
+const server = express()
+server.use(express.json())
+server.use(helmet())
+server.use(cors())
+
+server.use('/api/auth', authRouter);
+server.use('/api/users', usersRouter);
+// server.use('/api/classes', classesRouter)
+server.get("/", (req, res) => {
+  res.status(200).json({ message: 'api is running!' });
+});
 
 server.use((err, req, res, next) => { // eslint-disable-line
   res.status(err.status || 500).json({
@@ -15,4 +25,5 @@ server.use((err, req, res, next) => { // eslint-disable-line
   });
 });
 
-module.exports = server;
+module.exports = server
+
