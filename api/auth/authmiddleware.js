@@ -1,14 +1,15 @@
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = require("../config/secrets");
+const { jwtSecret } = require("../config/secrets");
 const Users = require('../users/usersmodel');
 
 const restricted = (req, res, next) => {
-	const token = req.headers.authorization;
-  
+	
+	const [authType, token] = req.headers.authorization.split(" ");
+    console.log(token);
 	if (!token) {
 	  res.status(401).json({ message: "Token required" });
 	} else {
-	  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+	  jwt.verify(token, jwtSecret, (err, decoded) => {
 		if (err) {
 		  res.status(401).json({ message: "Token invalid" });
 		} else {
@@ -19,13 +20,15 @@ const restricted = (req, res, next) => {
 	}
   };
 
-const checkUserExists = (req, res, next) => {
+const checkUserExists = async (req, res, next) => {
 	const { email } = req.body;
-	const exists = Users.findBy(email);
-	if (exists) {
+	const exists = await Users.findByUser(email);
+	console.log(exists)
+	if (exists.length>0) {
+		
 	  next();
 	} else {
-	  res.status(401).json({ message: "Invalid Credentials" });
+	  res.status(401).json({ message: "Email  not found" });
 	}
   };
 

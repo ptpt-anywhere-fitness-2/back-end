@@ -1,22 +1,31 @@
 const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const { checkUserExists, checkUser } = require("./authmiddleware");
-const { JWT_SECRET } = require("../config/secrets"); // use this secret!
+const { jwtSecret } = require("../config/secrets"); // use this secret!
 const Users = require("../users/usersmodel");
 const jwt = require("jsonwebtoken");
 
 
 router.post("/register", checkUser, (req, res, next) => {
-	let user = req.body;
+	let user = req.body; 
 	//console.log('register req.body',req.body);
-	const rounds = process.env.BCRYPT_ROUNDS || 8;
-	const hash = bcrypt.hashSync(user.password, rounds);
+	// const rounds = process.env.BCRYPT_ROUNDS || 8;
+	const hash = bcrypt.hashSync(user.password, 12); 
 	// added token to the return from register
-	user.password = hash;
-	Users.add(user)
+	user.password = hash; 
+  
+  // const testUser = {
+  //   email: "newuser1@t.com",
+  //   password: "12345",
+  //   name: "Newname1",
+  //   role: "Instructor",
+  // };
+  
+	Users.addNewUser(user)
 	  .then((newUser) => {
+    const {email, password, ...newUserRes} = newUser
 		const token = makeToken(newUser)
-		res.status(201).json({user:newUser, token});
+		res.status(201).json({user:newUserRes, token});
 	  })
 	  .catch(next);
   });
@@ -24,9 +33,10 @@ router.post("/register", checkUser, (req, res, next) => {
 router.post("/login", checkUserExists, (req, res, next) => {
   let { email, password } = req.body;
 
-  Users.findBy({ email }) // it would be nice to have middleware do this
+  Users.findByUser(email) // it would be nice to have middleware do this
     .then(([user]) => {
-      //console.log("login user", user);
+      console.log("login user", user);
+
       if (user && bcrypt.compareSync(password, user.password)) {
         const token = makeToken(user);
         res.status(200).json({
@@ -50,6 +60,6 @@ function makeToken(user) {
   const options = {
     expiresIn: "24h",
   };
-  return jwt.sign(payload, JWT_SECRET, options);
+  return jwt.sign(payload, jwtSecret, options);
 }
 module.exports = router;

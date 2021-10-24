@@ -7,16 +7,28 @@ function findAll() {
 
 //GET USER INFO BY ID
 function findById(id) {
-	return db("users as u").where("u.id", id);
+	return db("users").where("user_id", id).first();
 }
 //GET USER INFO BY name
 function findByUser(email) {
+	
 	return db("users as u").where("u.email", email);
 }
 // ADD USER
-function addNewUser(user) {
-	const newUser = db("users").insert(user).returning("*");
-	return newUser;
+async function addNewUser(user) {
+	const newUser = await db("users").insert(user);
+    
+	if(newUser.length>0){
+		return findById(newUser[0])
+		.then(user => {
+			return user
+		})
+		.catch(err => {return err})
+	}else{
+		return null
+	}
+	
+	
 }
 //UPDATE USER
 function updateUser(user, id) {
