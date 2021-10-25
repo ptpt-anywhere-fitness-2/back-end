@@ -13,6 +13,7 @@ server.use(helmet())
 server.use(cors())
 
 server.get('/', (req, res)=>{
+  console.log("hi");
   res.send('<h2>Server is running call endpoints</h2>')
 })
 server.use('/api/auth', authRouter);
