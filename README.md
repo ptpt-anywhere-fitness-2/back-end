@@ -1,6 +1,6 @@
 # Back-end
 
-### Base URL - tbd
+### Base URL - https://build29-fitness-be.herokuapp.com/
 
 ## Endpoints
 
