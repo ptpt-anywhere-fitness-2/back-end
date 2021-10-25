@@ -16,8 +16,9 @@ router.get("/user/:userId", authorized, (req, res, next) => {
 });
 
 router.get("/user/:userId/search",(req, res, next) => {
+  console.log("Client search req query: ",req.query);
   const { location, intensity } = req.query;
-  const{userId} = req.params
+ 
 
   classDb
     .searchClassesByFilter({ location, intensity })
