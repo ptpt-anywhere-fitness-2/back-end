@@ -77,10 +77,9 @@ const newClass = await db("user_class").insert({ user_id, class_id });
 }
 
 async function updateClass(classId, aClass) {
-  console.log(classId, "obj: ", aClass);
 
   const updatedClass = await db("classes").where("class_id", classId).update(aClass);
-  console.log(updatedClass);
+  
   if (updateClass) {
     return findClassesByClassId(classId)
       .then((aClass) => {

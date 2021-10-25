@@ -1,7 +1,9 @@
 const router = require("express").Router();
+const { authorized } = require("../auth/authmiddleware");
+const { checkClassId } = require("./classmiddleware");
 const classDb = require("./classmodel");
 
-router.get("/user/:userId", (req, res, next) => {
+router.get("/user/:userId", authorized, (req, res, next) => {
   const { userId } = req.params;
 
   classDb
@@ -12,8 +14,9 @@ router.get("/user/:userId", (req, res, next) => {
     .catch(next);
 });
 
-router.get("/search", (req, res, next) => {
+router.get("/user/:userId/search",(req, res, next) => {
   const { location, intensity } = req.query;
+  const{userId} = req.params
 
   classDb
     .searchClassesByFilter({ location, intensity })
@@ -23,7 +26,7 @@ router.get("/search", (req, res, next) => {
     .catch(next);
 });
 
-router.get("/:classId", (req, res, next) => {
+router.get("/user/:userId/:classId", authorized, checkClassId,(req, res, next) => {
   const { classId } = req.params;
   // console.log(classId)
   classDb
@@ -34,7 +37,7 @@ router.get("/:classId", (req, res, next) => {
     .catch(next);
 });
 
-router.post("/instructor", (req, res, next) => {
+router.post("/instructor/",(req, res, next) => {
   const newClass = req.body;
 
   classDb
@@ -45,7 +48,7 @@ router.post("/instructor", (req, res, next) => {
     .catch(next);
 });
 
-router.post("/client", (req, res, next) => {
+router.post("/client/",(req, res, next) => {
   const { user_id, class_id } = req.body;
 
   classDb
@@ -56,7 +59,7 @@ router.post("/client", (req, res, next) => {
     .catch(next);
 });
 
-router.put("/instructor/:classId", (req, res, next) => {
+router.put("/instructor/:userId/:classId", authorized, checkClassId,(req, res, next) => {
   const { classId } = req.params;
   const updatedClass = req.body;
 
@@ -68,7 +71,7 @@ router.put("/instructor/:classId", (req, res, next) => {
     .catch(next);
 });
 
-router.delete("/instructor/:classId", (req, res, next) => {
+router.delete("/instructor/:userId/:classId", authorized, checkClassId,(req, res, next) => {
   const { classId } = req.params;
   classDb
     .deleteInstructorClass(classId)
@@ -78,7 +81,7 @@ router.delete("/instructor/:classId", (req, res, next) => {
     .catch(next);
 });
 
-router.delete("/client/:userId/:classId", (req, res, next) => {
+router.delete("/client/:userId/:classId", authorized,(req, res, next) => {
   const { classId, userId } = req.params;
 
   classDb
