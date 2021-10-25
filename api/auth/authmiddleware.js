@@ -1,3 +1,4 @@
+const e = require("express");
 const jwt = require("jsonwebtoken");
 const { jwtSecret } = require("../config/secrets");
 const Users = require('../users/usersmodel');
@@ -26,24 +27,33 @@ const restricted = (req, res, next) => {
   };
 
 const authorized = (req, res, next) => {
-	console.log(req.decodedToken);
-	const {userId} = req.params;
-    console.log("userId",userId);
-	Users.findById(userId)
-	.then(user => {
-		const{user_id, email, role, name} = user
-        
-		const tokenEmail = req.decodedToken.email
-        
-		if( tokenEmail === email){
-			req.user = {user_id, name, role}
-			next()
-		}else{
-			res.status(401).json({message: "you aren't authorized"})
-		}
-	})
-	.catch(err => res.status(500).json({ error: `Something went wrong while authrizing user ${err}` }))
-}
+  console.log(req.decodedToken, "authmiddleware 29");
+  const { userId } = req.params;
+  console.log("userId", userId, "authmiddleware 31");
+  Users.findById(userId)
+    .then((user) => {
+
+      if (!user) {
+        res.status(404).json({ message: `user id ${userId} doesn't exist` });
+        return;
+      }
+
+      const { user_id, email, role, name } = user;
+      const tokenEmail = req.decodedToken.email;
+
+      if (tokenEmail === email) {
+        req.user = { user_id, name, role };
+        next();
+      } else {
+        res.status(401).json({ message: "you aren't authorized" });
+      }
+    })
+    .catch((err) =>
+      res
+        .status(500)
+        .json({ error: `Something went wrong while authrizing user ${err}` })
+    );
+};
 
 const checkUserExists = async (req, res, next) => {
 	const { email } = req.body;

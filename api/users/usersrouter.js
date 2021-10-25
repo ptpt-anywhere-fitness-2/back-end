@@ -11,11 +11,15 @@ router.get("/", authorized, (req, res, next) => {
     .catch(next);
 });
 
-router.get("/:id", authorized, (req, res, next) => {
-  res.status(200).json(req.user)
+router.get("/:userId", authorized, (req, res, next) => {
+  if(req.user){
+    res.status(200).json(req.user)
+  }else{
+    next();
+  }
 });
 
-router.patch("/:id", authorized, (req, res, next) => {
+router.patch("/:userId", authorized, (req, res, next) => {
   const { id } = req.params;
   const changes = req.body;
 
@@ -30,7 +34,7 @@ router.patch("/:id", authorized, (req, res, next) => {
     .catch(next);
 });
 
-router.delete("/:id", authorized, (req, res, next) => {
+router.delete("/:userId", authorized, (req, res, next) => {
   Users.deleteUser(req.params.id)
     .then((user) => {
       if (user > 0) {
