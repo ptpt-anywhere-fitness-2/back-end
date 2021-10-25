@@ -12,6 +12,7 @@ router.get("/", authorized, (req, res, next) => {
 });
 
 router.get("/:userId", authorized, (req, res, next) => {
+  console.log("This is user route",req.user )
   if(req.user){
     res.status(200).json(req.user)
   }else{

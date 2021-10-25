@@ -4,8 +4,9 @@ const { checkClassId } = require("./classmiddleware");
 const classDb = require("./classmodel");
 
 router.get("/user/:userId", authorized, (req, res, next) => {
+ 
   const { userId } = req.params;
-
+  
   classDb
     .findClassesByUserId(userId)
     .then((classes) => {

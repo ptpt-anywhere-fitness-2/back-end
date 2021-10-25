@@ -1,17 +1,19 @@
-const e = require("express");
 const jwt = require("jsonwebtoken");
 const { jwtSecret } = require("../config/secrets");
 const Users = require('../users/usersmodel');
 
 const restricted = (req, res, next) => {
+	console.log("this is restricted mw")
 	
 	if(!req.headers.authorization){
 		res.status(400).json({message: "Missing auth token"})
 		return;
 	}
 
+
+
 	const [authType, token] = req.headers.authorization.split(" ");
-  
+
 	if (!token) {
 	  res.status(401).json({ message: "Token required" });
 	} else {
@@ -27,9 +29,9 @@ const restricted = (req, res, next) => {
   };
 
 const authorized = (req, res, next) => {
-  console.log(req.decodedToken, "authmiddleware 29");
+	
   const { userId } = req.params;
-  console.log("userId", userId, "authmiddleware 31");
+  
   Users.findById(userId)
     .then((user) => {
 
@@ -40,9 +42,10 @@ const authorized = (req, res, next) => {
 
       const { user_id, email, role, name } = user;
       const tokenEmail = req.decodedToken.email;
-
-      if (tokenEmail === email) {
+     
+      if (tokenEmail == email) {
         req.user = { user_id, name, role };
+		console.log("this is aut mw before next")
         next();
       } else {
         res.status(401).json({ message: "you aren't authorized" });
