@@ -19,7 +19,8 @@ async function findClassesByUserId(userId) {
           "c.start_time",
           "c.intensity",
           "c.user_id as instructor_id",
-          "uc.user_id as client_id"
+          "uc.user_id as client_id",
+          "c.class_id",
         );
     }
   } else {
