@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { authorized } = require("../auth/authmiddleware");
-const { checkClassId } = require("./classmiddleware");
+const { checkClassId, checkClassBody } = require("./classmiddleware");
 const classDb = require("./classmodel");
 
 router.get("/user/:userId", authorized, (req, res, next) => {
@@ -38,7 +38,7 @@ router.get("/user/:userId/:classId", authorized, checkClassId,(req, res, next) =
     .catch(next);
 });
 
-router.post("/instructor/",(req, res, next) => {
+router.post("/instructor/", checkClassBody,(req, res, next) => {
   const newClass = req.body;
 
   classDb
