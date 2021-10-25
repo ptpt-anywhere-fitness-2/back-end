@@ -60,7 +60,7 @@ router.post("/client/",(req, res, next) => {
     .catch(next);
 });
 
-router.put("/instructor/:userId/:classId", authorized, checkClassId,(req, res, next) => {
+router.put("/instructor/:userId/:classId", authorized, checkClassBody, checkClassId,(req, res, next) => {
   const { classId } = req.params;
   const updatedClass = req.body;
 
